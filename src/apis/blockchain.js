@@ -1,10 +1,13 @@
 import { ethers, utils } from "ethers"
-import mokAbi from "../abis/Lottery.json"
+import lotAbi from "../abis/Lottery.json"
+import mokAbi from "../abis/MokToken.json"
 const BlockChain = {
 
     provider: null,
-    contract: null,
-
+    lottery_contract_address: "0x8dF5F635f617Cea027196f18E9EE56dE6dEe7cbF",
+    token_contract_address: "0x6424cfBce3B00de23E86e7965ee8F6C2564dA8D4",
+    lottery_contract: null,
+    token_contract: null,
     getMokAbi: () => {
         return mokAbi.abi
     },
@@ -20,25 +23,28 @@ const BlockChain = {
     },
 
     attachMokContract: async () => {
-        BlockChain.contract = new ethers.Contract("0xe51ce2c8979C818E9C5466E70e0d24F9A76EcE90", JSON.stringify(BlockChain.getMokAbi()), BlockChain.provider.getSigner())
+        BlockChain.token_contract = new ethers.Contract(BlockChain.token_contract_address, JSON.stringify(mokAbi.abi), BlockChain.provider.getSigner());
+        BlockChain.lottery_contract = new ethers.Contract(BlockChain.lottery_contract_address, JSON.stringify(lotAbi.abi), BlockChain.provider.getSigner());
     },
 
     getJackpot: async () => {
-        return await BlockChain.contract.getJackpot();
+        return await BlockChain.lottery_contract.getJackpot();
     },
 
     getNextDrawTime: async () => {
-        let { _hex } = await BlockChain.contract.getNextDrawTime();
+        let { _hex } = await BlockChain.lottery_contract.getNextDrawTime();
 
         let time = ethers.BigNumber.from(_hex);
 
         return time.toNumber();
     },
 
-    buyTicket: async () => {
 
-        
-        await BlockChain.contract.buyTicket(1);
+
+
+    buyTicket: async () => {
+        await BlockChain.token_contract.approve(BlockChain.lottery_contract_address, 20);
+        // await BlockChain.lottery_contract.buyTicket(1);
     }
 
 
