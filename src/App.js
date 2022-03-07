@@ -1,25 +1,30 @@
-import logo from './logo.svg';
-import './App.css';
-
+import { useCallback, useContext, useEffect, useState } from "react";
+import Buy from "./Buy"
+import BlockChain from "./apis/blockchain";
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+
+    let [drawTime, setDrawTime] = useState("");
+
+    useEffect(() => (async () => {
+
+        await BlockChain.connectToMetaMask();
+        await BlockChain.attachMokContract();
+        let time = await BlockChain.getNextDrawTime();
+        
+        setDrawTime(new Date(time * 1000).toISOString());
+
+        await BlockChain.buyTicket();
+
+    })(), [])
+
+    return (
+        <>
+            <h1>The Luktery</h1>
+            <p>Tickets are 20 Lukt each!</p>
+            <p>Next Draw Unlocks: {drawTime}</p>
+            <Buy />
+        </>
+    );
 }
 
 export default App;
