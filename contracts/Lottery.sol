@@ -60,11 +60,7 @@ contract Lottery {
 
         require(m.balanceOf(msg.sender) >= 20 * amount);
 
-        // if (!m.approve(address(this), amount * 20)) {
-        //     revert("Failed to approve amount");
-        // }
-
-        if (!m.transfer(address(this), amount * 20)) {
+        if (!m.transferFrom(msg.sender, address(this), amount * 20)) {
             revert("Failed to transfer Mok payment to Lottery contract");
         }
 
@@ -91,18 +87,17 @@ contract Lottery {
 
     function chooseWinner() public onlyAdmin returns (address) {
         // 5 minutes must have passed before new draw
-        require(block.timestamp - _last_draw_time >= 5 * 60);
+        require(block.timestamp - _last_draw_time >= 5 * 60, "Not enough time has passed!");
 
         _last_draw_time = block.timestamp;
 
         Mok m = Mok(_mok_address);
 
         // this better be true...
-        require(m.balanceOf(address(this)) >= _jackpot);
+        require(m.balanceOf(address(this)) >= _jackpot, "Not enough money to give!");
 
         address winner = _players[prng(_players.length)];
-
-        if (!m.transferFrom(address(this), winner, _jackpot)) {
+        if (!m.transfer(winner, _jackpot)) {
             revert("Failed to award lottery winner.");
         }
 

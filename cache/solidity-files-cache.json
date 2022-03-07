@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "/home/david/documents/programming/html/blockchain-exercise/contracts/Lottery.sol": {
-      "lastModificationDate": 1646622330915,
-      "contentHash": "25f3445dd832c3820f45503a9428b8bb",
+      "lastModificationDate": 1646635558165,
+      "contentHash": "ba1d6998ea543ca98b849815a564c6e1",
       "sourceName": "contracts/Lottery.sol",
       "solcConfig": {
         "version": "0.8.0",

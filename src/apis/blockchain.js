@@ -4,7 +4,7 @@ import mokAbi from "../abis/MokToken.json"
 const BlockChain = {
 
     provider: null,
-    lottery_contract_address: "0x8dF5F635f617Cea027196f18E9EE56dE6dEe7cbF",
+    lottery_contract_address: "0xBb9541927a97b19011fc3fe328d1c52f893db6C8",
     token_contract_address: "0x6424cfBce3B00de23E86e7965ee8F6C2564dA8D4",
     lottery_contract: null,
     token_contract: null,
@@ -39,14 +39,22 @@ const BlockChain = {
         return time.toNumber();
     },
 
-
-
-
     buyTicket: async () => {
-        await BlockChain.token_contract.approve(BlockChain.lottery_contract_address, 20);
-        // await BlockChain.lottery_contract.buyTicket(1);
-    }
+        const approve = await BlockChain.token_contract.approve(BlockChain.lottery_contract_address, 20);
 
+        await approve.wait();
+
+        await BlockChain.lottery_contract.buyTicket(1);
+    },
+
+    chooseWinner: async () => {
+        try {
+            await BlockChain.lottery_contract.chooseWinner()
+        } catch (e) {
+            console.log(e);
+        }
+
+    }
 
 }
 

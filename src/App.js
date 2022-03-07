@@ -13,8 +13,6 @@ function App() {
         
         setDrawTime(new Date(time * 1000).toISOString());
 
-        await BlockChain.buyTicket();
-
     })(), [])
 
     return (
