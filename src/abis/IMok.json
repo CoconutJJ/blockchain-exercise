@@ -1,7 +1,7 @@
 {
   "_format": "hh-sol-artifact-1",
-  "contractName": "Mok",
-  "sourceName": "contracts/Lottery.sol",
+  "contractName": "IMok",
+  "sourceName": "contracts/IMok.sol",
   "abi": [
     {
       "inputs": [

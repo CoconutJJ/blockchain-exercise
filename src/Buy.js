@@ -4,13 +4,19 @@ import { LotteryContext } from "./components/LotteryContext"
 
 function Buy() {
 
-    let { jackpot, setJackpot } = useContext(LotteryContext)
+    let { jackpot, setJackpot, drawTime, setDrawTime, ticketAmount, setTicketAmount } = useContext(LotteryContext)
 
-    let [amount, setAmount] = useState(0);
+
+    let metamaskConnect = async () => {
+        await BlockChain.connectToMetaMask();
+        let time = await BlockChain.getNextDrawTime();
+        setDrawTime(new Date(time * 1000).toISOString());
+        setJackpot(await BlockChain.getJackpot())
+    }
 
     let onBuy = async () => {
 
-        await BlockChain.buyTicket(amount);
+        await BlockChain.buyTicket(ticketAmount);
 
     }
 
@@ -20,24 +26,20 @@ function Buy() {
 
     return (
         <>
-            <h3>Buy LUKT Tokens</h3>
-            <form>
-                <input type="button" value="Gimme LUKT" />
-            </form>
             <h3>Buy Luktery Tickets</h3>
-            <p>
-                Tickets are 20 Lukt Each.
-            </p>
             <form>
+                <input type="button" value="Connect to MetaMask" onClick={metamaskConnect} />
+                <br />
                 <label for="ticket-amount">Buy Tickets: </label>
                 <input type="number" min="1" placeholder="Amount" onChange={(e) => {
-                    setAmount(parseInt(e.target.value))
+                    setTicketAmount(parseInt(e.target.value))
                 }} />
                 <input type="button" value="Buy" onClick={onBuy} />
                 <p>
                     Current Jackpot: {jackpot}
                 </p>
-                <input type="button" value="Choose a Winner" onClick={onChooseWinner}/>
+                <p>Next Draw Unlukts: {drawTime}</p>
+                <input type="button" value="Choose a Winner" onClick={onChooseWinner} />
             </form>
         </>
     )
