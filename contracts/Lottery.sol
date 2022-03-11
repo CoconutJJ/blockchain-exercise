@@ -6,14 +6,14 @@ import "./IMok.sol";
 
 contract Lottery is AccessControl {
     uint256 public _jackpot;
-    uint256 _usage_fees;
+    uint256 public _usage_fees;
     uint256 public _last_draw_time;
 
     address public _owner;
     address public _mok_address;
 
-    address[2] _managers;
-    address[] _players;
+    address[2] public _managers;
+    address[] public _players;
 
     bytes32 public constant OWNER_ROLE = keccak256("OWNER_ROLE");
     bytes32 public constant MANAGER_ROLE = keccak256("MANAGER_ROLE");
