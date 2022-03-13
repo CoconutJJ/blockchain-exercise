@@ -7,7 +7,7 @@ describe("Lottery Contract", () => {
 
     /**
      * 
-     * @returns {Promise<[String, Contract, Contract]>}
+     * @returns {Promise<[Object, Object, Contract, Contract]>}
      */
     let setupContracts = async () => {
         const [owner, user] = await ethers.getSigners();
@@ -84,4 +84,72 @@ describe("Lottery Contract", () => {
 
     })
 
+    it("should allow owner to change the manager role", async () => {
+
+        let [owner, user, MokContract, LotteryContract] = await setupContracts();
+        try {
+            await LotteryContract.connect(owner).changeManager(owner.address, user.address)
+        } catch (e) {
+            console.log(e)
+            expect.fail("Could not change manager role as owner");
+        }
+    });
+
+    it("should not allow non-owner to change the manager role", async () => {
+
+        let [owner, user, MokContract, LotteryContract] = await setupContracts();
+        try {
+            await LotteryContract.connect(user).changeManager(owner.address, user.address)
+            expect.fail("Non-owner can change manager role!");
+        } catch (e) {
+
+        }
+    });
+
+    it("should allow owner to set the ticket price", async () => {
+        let [owner, user, MokContract, LotteryContract] = await setupContracts();
+        const weiPrice = ethers.utils.formatUnits(ethers.BigNumber.from(30), "wei");
+
+        try {
+            await LotteryContract.setPrice(weiPrice);
+        } catch (e) {
+            console.log(e)
+            expect.fail("Owner cannot change ticket price")
+        }
+    })
+    it("should not allow non-owner to set the ticket price", async () => {
+        let [owner, user, MokContract, LotteryContract] = await setupContracts();
+        const weiPrice = ethers.utils.formatUnits(ethers.BigNumber.from(30), "wei");
+
+        try {
+            await LotteryContract.setPrice(weiPrice);
+            expect.fail("Non-owner can change ticket price")
+        } catch (e) {
+        }
+    })
+
+
+    it("should allow owner to set the usage fee rate", async () => {
+        let [owner, user, MokContract, LotteryContract] = await setupContracts();
+        const weiPrice = ethers.utils.parseEther("0.1");
+        
+        try {
+            await LotteryContract.setUsageFee(weiPrice);
+        } catch (e) {
+            console.log(e)
+
+            expect.fail("Owner cannot change usage fee rate")
+        }
+    })
+
+    it("should not allow non-owner to set the usage fee rate", async () => {
+        let [owner, user, MokContract, LotteryContract] = await setupContracts();
+        const weiPrice = ethers.utils.parseEther("0.1");
+
+        try {
+            await LotteryContract.setUsageFee(weiPrice);
+            expect.fail("Non-owner can change usage fee rate")
+        } catch (e) {
+        }
+    })
 })

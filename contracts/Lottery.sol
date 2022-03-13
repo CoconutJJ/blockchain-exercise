@@ -8,6 +8,8 @@ contract Lottery is AccessControl {
     uint256 public _jackpot;
     uint256 public _usage_fees;
     uint256 public _last_draw_time;
+    uint256 public _ticket_price;
+    uint256 public _usage_fee_rate;
 
     address public _owner;
     address public _mok_address;
@@ -29,7 +31,9 @@ contract Lottery is AccessControl {
         _managers[1] = manager2;
         _mok_address = mokAddress;
         _last_draw_time = block.timestamp;
-
+        _ticket_price = 20 ether;
+        _usage_fee_rate = 0.05 ether;
+        _setupRole(DEFAULT_ADMIN_ROLE, _owner);
         _setupRole(OWNER_ROLE, _owner);
         _setupRole(MANAGER_ROLE, manager1);
         _setupRole(MANAGER_ROLE, manager2);
@@ -49,19 +53,53 @@ contract Lottery is AccessControl {
         _;
     }
 
+    function changeManager(address oldManager, address newManager)
+        public
+        onlyRole(OWNER_ROLE)
+    {
+        require(
+            _managers[0] == oldManager || _managers[1] == oldManager,
+            "oldManager was not a manager!"
+        );
+
+        if (_managers[0] == oldManager) {
+            revokeRole(MANAGER_ROLE, _managers[0]);
+            _managers[0] = newManager;
+        } else if (_managers[1] == oldManager) {
+            revokeRole(MANAGER_ROLE, _managers[1]);
+            _managers[1] = newManager;
+        }
+
+        grantRole(MANAGER_ROLE, newManager);
+    }
+
+    function setPrice(uint256 p) public onlyRole(OWNER_ROLE) {
+        _ticket_price = p;
+    }
+
+    function setUsageFee(uint256 p) public onlyRole(MANAGER_ROLE) {
+        _usage_fee_rate = p;
+    }
+
     function buyTicket(uint256 amount) public {
         IMok m = IMok(_mok_address);
 
+        uint256 total_price = amount * _ticket_price;
+
         require(
-            m.balanceOf(msg.sender) >= 20 * amount,
-            "insufficient token balance. Tickets 20 LUKT each."
+            m.balanceOf(msg.sender) >= total_price,
+            "insufficient token balance"
         );
 
-        m.transferFrom(msg.sender, address(this), amount * 20);
+        m.transferFrom(msg.sender, address(this), total_price);
 
-        _jackpot += amount * 19; // 19 = 95% of 20
+        _jackpot +=
+            _ticket_price *
+            amount -
+            (_ticket_price * amount * _usage_fee_rate) /
+            (1 ether); // 19 = 95% of 20
 
-        _usage_fees += amount;
+        _usage_fees += (total_price * _usage_fee_rate) / (1 ether);
 
         for (uint256 i = 0; i < amount; i++) {
             _players.push(msg.sender);
@@ -71,7 +109,6 @@ contract Lottery is AccessControl {
     function prng(uint256 max) private pure returns (uint256) {
         return 244737 % max;
     }
-
 
     function chooseWinner() public onlyAdmin returns (address) {
         // 5 minutes must have passed before new draw

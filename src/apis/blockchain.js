@@ -9,6 +9,7 @@ const BlockChain = {
     client_address: null,
     lottery_contract: null,
     token_contract: null,
+
     getMokAbi: () => {
         return mokAbi.abi
     },
@@ -39,10 +40,10 @@ const BlockChain = {
     },
 
     getJackpot: async () => {
-        let {_hex} = await BlockChain.lottery_contract._jackpot();
-        
+        let { _hex } = await BlockChain.lottery_contract._jackpot();
+
         return ethers.BigNumber.from(_hex).toNumber();
-    
+
     },
 
     getNextDrawTime: async () => {
@@ -68,6 +69,20 @@ const BlockChain = {
         }
 
 
+    },
+
+    setTicketPrice: async (newPrice) => {
+        const weiPrice = ethers.utils.parseEther(newPrice.toString());
+        await BlockChain.lottery_contract.setPrice(weiPrice);
+    },
+
+    setUsageFee: async (rate) => {
+        const weiPrice = ethers.utils.parseEther(rate.toString())
+        await BlockChain.lottery_contract.setUsageFee(weiPrice);
+    },
+
+    setNewManager: async (oldManager, newManager) => {
+        await BlockChain.lottery_contract.changeManager(oldManager, newManager);
     },
 
     buyTicket: async () => {
